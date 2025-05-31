@@ -20,6 +20,7 @@ POINTING_DEVICE_DRIVER = custom
 
 REPEAT_KEY_ENABLE = yes
 LAYER_LOCK_ENABLE = yes
+VIAL_ALLOW_MO_IN_OVERRIDE = yes
 
 # this turns on Manna-Harbour's automousekeys:
 MH_AUTO_BUTTONS = yes

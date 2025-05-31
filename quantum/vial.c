@@ -574,6 +574,20 @@ bool process_record_vial(uint16_t keycode, keyrecord_t *record) {
 static bool vial_key_override_disabled = 0;
 static key_override_t vial_key_overrides[VIAL_KEY_OVERRIDE_ENTRIES] = { 0 };
 
+#ifdef VIAL_ALLOW_MO_IN_OVERRIDE
+static bool vial_perform_momentary_layer_shift(bool is_key_down, void *raw_layer) {
+	uint8_t layer_number = (uint8_t)(uintptr_t)layer;
+
+	if (is_key_down) {
+		layer_on(layer_number);
+	} else {
+		layer_off(layer_number);
+	}
+
+	return false;
+}
+#endif
+
 static int vial_get_key_override(uint8_t index, key_override_t *out) {
     vial_key_override_entry_t entry;
     int ret;
@@ -587,6 +601,14 @@ static int vial_get_key_override(uint8_t index, key_override_t *out) {
     out->negative_mod_mask = entry.negative_mod_mask;
     out->suppressed_mods = entry.suppressed_mods;
     out->replacement = entry.replacement;
+#ifdef VIAL_ALLOW_MO_IN_OVERRIDE
+	if (IS_QK_MOMENTARY(entry.replacement)) {
+		uint8_t layer_number = (uint8_t)(entry.replacement - QK_MOMENTARY);
+		out->replacement = KC_NO;
+		out->custom_action = vial_perform_momentary_layer_shift;
+		out->context = (void *)layer_number;
+	}
+#endif
     out->options = 0;
     uint8_t opt = entry.options;
     if (opt & vial_ko_enabled)
